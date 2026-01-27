@@ -66,8 +66,8 @@ with st.sidebar:
 # HOME PAGE
 # =============================
 if st.session_state.page == "Home":
-    st.title("🕵️‍♀️ Bias Check")
-    st.subheader("Blind-first evaluation for more intentional decisions.")
+    st.title("⭐ Bias Check")
+    st.subheader("Blind-first evaluation for more intentional decision-making.")
 
     st.write(
         "Bias Check helps teams evaluate written submissions (resumes, pitches, applications) "
@@ -79,7 +79,7 @@ if st.session_state.page == "Home":
     with c1:
         st.markdown("### Problem")
         st.write(
-            "Early signals like name, school, and prestige brands can influence decisions "
+            "Early signals like name, school, and prestige brands have the ability to influence decisions "
             "before evaluators fully engage with the content."
         )
     with c2:
@@ -95,8 +95,8 @@ if st.session_state.page == "Home":
     st.markdown("---")
     st.markdown("## How it works")
     st.markdown(
-        "- Paste a submission (resume, pitch, or application response)\n"
-        "- Add a redaction list (identity/signaling info to hide)\n"
+        "- The admin will paste any submission (resume, pitch, or application response)\n"
+        "- Add a redaction list (this is identity/signaling info to hide)\n"
         "- Score the blind version\n"
         "- Reveal identity/context and score again\n"
         "- Compare the score change\n"
