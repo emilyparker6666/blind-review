@@ -90,7 +90,7 @@ if st.session_state.page == "Home":
         )
     with c3:
         st.markdown("### Why it matters")
-        st.write("Bias becomes observable. Teams can discuss decisions using evidence instead of assumptions.")
+        st.write("Identifying unconscious biases in the hiring process will allow organizations to create a work environment free of exclusionary practices that may unfairly exclude candidates due to an employer's implicit or explicit bias against certain groups, such as people of a different racial, ethnic, or gender group. This practice will help employers identify and eliminate their own, often unintentional, prejudices, which could result in the loss of quality employees and potential lawsuits related to employment discrimination.")
 
     st.markdown("---")
     st.markdown("## How it works")
