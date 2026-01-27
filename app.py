@@ -64,6 +64,7 @@ if st.session_state.step == 1:
     if st.button("Generate blind version →", type="primary"):
         if submission_text.strip():
             tokens = [t.strip() for t in tokens_text.splitlines() if t.strip()]
+            st.session_state.original_text = submission_text
             st.session_state.blind_text = redact_text(submission_text, tokens)
             st.session_state.step = 2
         else:
@@ -95,6 +96,14 @@ elif st.session_state.step == 2:
 # -----------------------------
 elif st.session_state.step == 3:
     st.subheader("3) Identity revealed")
+    
+    st.markdown("### Original submission (identity revealed)")
+    st.text_area(
+        "Original (unredacted) text",
+        value=st.session_state.original_text,
+        height=300,
+        disabled=True
+    )
 
     reveal_text = st.text_area(
         "Identity / context",
