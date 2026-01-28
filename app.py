@@ -4,7 +4,7 @@ import streamlit as st
 # -----------------------------
 # Page setup
 # -----------------------------
-st.set_page_config(page_title="Bias Check", page_icon="🕵️‍♀️", layout="wide")
+st.set_page_config(page_title="Evalia", page_icon="🕵️‍♀️", layout="wide")
 
 # -----------------------------
 # Session state defaults
