@@ -9,8 +9,8 @@ st.set_page_config(page_title="Bias Check", page_icon="🕵️‍♀️", layout
 # -----------------------------
 # Session state defaults
 # -----------------------------
-if "nav" not in st.session_state:
-    st.session_state.nav = "Home"  # single source of truth for page
+if "page" not in st.session_state:
+    st.session_state.page = "Home"   # <-- use this for navigation (NOT the radio key)
 if "step" not in st.session_state:
     st.session_state.step = 1
 if "blind_text" not in st.session_state:
@@ -30,7 +30,6 @@ PHONE_RE = re.compile(r"(\+?\d{1,2}\s*)?(\(?\d{3}\)?[\s.-]*)\d{3}[\s.-]*\d{4}")
 URL_RE = re.compile(r"\bhttps?://\S+|\bwww\.\S+", re.IGNORECASE)
 
 def redact_text(text: str, tokens: list[str]) -> str:
-    """MVP redaction: emails/phones/URLs + exact token list (case-insensitive)."""
     redacted = text
     redacted = EMAIL_RE.sub("[REDACTED_EMAIL]", redacted)
     redacted = PHONE_RE.sub("[REDACTED_PHONE]", redacted)
@@ -44,13 +43,23 @@ def redact_text(text: str, tokens: list[str]) -> str:
     return redacted
 
 # -----------------------------
-# Sidebar navigation (FIXED)
+# Sidebar navigation (radio controls st.session_state.page via callback)
 # -----------------------------
+def go_page():
+    st.session_state.page = st.session_state.nav_choice
+
 with st.sidebar:
     st.markdown("## Bias Check")
     st.caption("Blind-first evaluation MVP")
 
-    st.radio("Navigate", ["Home", "Demo"], key="nav")
+    # IMPORTANT: radio has its OWN key, and writes into page via on_change
+    st.radio(
+        "Navigate",
+        ["Home", "Demo"],
+        key="nav_choice",
+        index=0 if st.session_state.page == "Home" else 1,
+        on_change=go_page
+    )
 
     st.markdown("---")
     if st.button("Reset demo"):
@@ -61,7 +70,8 @@ with st.sidebar:
         st.session_state.notes_blind = ""
         st.rerun()
 
-page = st.session_state.nav
+# Keep page in sync if user clicks sidebar
+page = st.session_state.page
 
 # =============================
 # HOME PAGE
@@ -91,9 +101,7 @@ if page == "Home":
         )
     with c3:
         st.markdown("### Why it matters")
-        st.write(
-            "Bias becomes observable. Teams can discuss decisions using evidence instead of assumptions."
-        )
+        st.write("Bias becomes observable. Teams can discuss decisions using evidence instead of assumptions.")
 
     st.markdown("---")
     st.markdown("## How it works")
@@ -118,11 +126,11 @@ if page == "Home":
     with st.expander("Why manual redaction?"):
         st.write("This MVP prioritizes speed and reliability. Automation can come later.")
     with st.expander("What should we redact?"):
-        st.write("Names, schools, company brand signals, locations, links, phone/email—anything that can trigger early assumptions.")
+        st.write("Names, schools, brand names, locations, links, phone/email—anything that triggers early assumptions.")
 
     st.write("")
     if st.button("▶ Start demo", type="primary"):
-        st.session_state.nav = "Demo"
+        st.session_state.page = "Demo"      # <-- safe (NOT a widget key)
         st.session_state.step = 1
         st.rerun()
 
@@ -192,7 +200,6 @@ elif st.session_state.step == 2:
 elif st.session_state.step == 3:
     st.subheader("3) Identity revealed + compare")
 
-    st.markdown("### Original submission (identity revealed)")
     st.text_area(
         "Original (unredacted) text",
         value=st.session_state.original_text,
@@ -213,25 +220,6 @@ elif st.session_state.step == 3:
     delta = score_revealed - int(st.session_state.score_blind)
     st.metric("Score change", f"{delta:+d}")
 
-    with st.expander("Copy/paste session export (for assignment)"):
-        export = f"""
-Bias Check — Session Export
-
-Blind score (1–10): {st.session_state.score_blind}
-Blind notes:
-{st.session_state.notes_blind}
-
-Revealed identity/context:
-{reveal_text}
-
-Revealed score (1–10): {score_revealed}
-Revealed notes:
-{notes_revealed}
-
-Score change: {delta:+d}
-"""
-        st.code(export, language="text")
-
     c1, c2 = st.columns(2)
     with c1:
         if st.button("Run another demo (reset)"):
@@ -241,10 +229,8 @@ Score change: {delta:+d}
             st.session_state.score_blind = 5
             st.session_state.notes_blind = ""
             st.rerun()
-
     with c2:
         if st.button("Back to Home"):
-            st.session_state.nav = "Home"
+            st.session_state.page = "Home"  # safe
             st.session_state.step = 1
             st.rerun()
-
