@@ -218,7 +218,8 @@ elif st.session_state.step == 3:
         placeholder="Name, school, location, prestige signals, leadership titles, etc."
     )
 
-    score_revealed = st.slider("Score (revealed)", 1, 10, 5, key="score_revealed")
+    score_revealed = st.slider("Score (revealed)", 1, 10, int(st.session_state.score_revealed)) #CHANGED FROM score_revealed = st.slider("Score (revealed)", 1, 10, 5, key="score_revealed")
+
     notes_revealed = st.text_area("Notes (revealed)", height=100, placeholder="Optional: what changed after reveal?")
     if st.button("See summary →", type="primary"): #added
         st.session_state.score_revealed = score_revealed
