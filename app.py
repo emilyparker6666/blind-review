@@ -10,7 +10,7 @@ st.set_page_config(page_title="Bias Check", page_icon="🕵️‍♀️", layout
 # Session state defaults
 # -----------------------------
 if "nav" not in st.session_state:
-    st.session_state.nav = "Home"   # <-- single source of truth for page
+    st.session_state.nav = "Home"  # single source of truth for page
 if "step" not in st.session_state:
     st.session_state.step = 1
 if "blind_text" not in st.session_state:
@@ -50,7 +50,6 @@ with st.sidebar:
     st.markdown("## Bias Check")
     st.caption("Blind-first evaluation MVP")
 
-    # IMPORTANT: key="nav" makes Streamlit persist the selection across reruns
     st.radio("Navigate", ["Home", "Demo"], key="nav")
 
     st.markdown("---")
@@ -62,7 +61,6 @@ with st.sidebar:
         st.session_state.notes_blind = ""
         st.rerun()
 
-# Read current page from the radio
 page = st.session_state.nav
 
 # =============================
@@ -82,8 +80,171 @@ if page == "Home":
     with c1:
         st.markdown("### Problem")
         st.write(
-            "Early signals like name, school, and prestige brands have the ability to influence decisions "
+            "Early signals like name, school, and prestige brands can influence decisions "
             "before evaluators fully engage with the content."
         )
     with c2:
-        st.markdown
+        st.markdown("### What we do")
+        st.write(
+            "We generate a **blind (redacted) version** of a submission, collect a score, then reveal "
+            "identity/context and collect a second score."
+        )
+    with c3:
+        st.markdown("### Why it matters")
+        st.write(
+            "Bias becomes observable. Teams can discuss decisions using evidence instead of assumptions."
+        )
+
+    st.markdown("---")
+    st.markdown("## How it works")
+    st.markdown(
+        "- Paste a submission (resume, pitch, or application response)\n"
+        "- Add a redaction list (identity/signaling info to hide)\n"
+        "- Score the blind version\n"
+        "- Reveal identity/context and score again\n"
+        "- Compare the score change\n"
+    )
+
+    st.markdown("## Who it’s for")
+    st.markdown(
+        "- Student orgs reviewing applicants\n"
+        "- Startup teams reviewing pitches\n"
+        "- Small teams hiring interns\n"
+    )
+
+    st.markdown("## FAQ")
+    with st.expander("Is this replacing hiring or selection?"):
+        st.write("No. Bias Check is a lightweight layer that makes sequencing effects visible.")
+    with st.expander("Why manual redaction?"):
+        st.write("This MVP prioritizes speed and reliability. Automation can come later.")
+    with st.expander("What should we redact?"):
+        st.write("Names, schools, company brand signals, locations, links, phone/email—anything that can trigger early assumptions.")
+
+    st.write("")
+    if st.button("▶ Start demo", type="primary"):
+        st.session_state.nav = "Demo"
+        st.session_state.step = 1
+        st.rerun()
+
+    st.stop()
+
+# =============================
+# DEMO PAGE (3-step flow)
+# =============================
+st.title("Demo: Blind-first evaluation")
+st.caption("Paste → Redact → Score blind → Reveal → Re-score → Compare")
+
+# -----------------------------
+# STEP 1 — INPUT
+# -----------------------------
+if st.session_state.step == 1:
+    st.subheader("1) Input submission")
+
+    submission_text = st.text_area(
+        "Paste the submission text",
+        height=280,
+        placeholder="Paste a resume, pitch paragraph, or application response here.",
+        key="submission_text"
+    )
+
+    tokens_text = st.text_area(
+        "Redact list (one per line)",
+        height=160,
+        placeholder="Jane Doe\nGeorgetown University\njane.doe@email.com\n(202) 555-0198\nlinkedin.com/in/...",
+        key="tokens_text"
+    )
+
+    if st.button("Generate blind version →", type="primary"):
+        if submission_text.strip():
+            tokens = [t.strip() for t in tokens_text.splitlines() if t.strip()]
+            st.session_state.original_text = submission_text
+            st.session_state.blind_text = redact_text(submission_text, tokens)
+            st.session_state.step = 2
+            st.rerun()
+        else:
+            st.error("Please paste submission text first.")
+
+# -----------------------------
+# STEP 2 — BLIND REVIEW
+# -----------------------------
+elif st.session_state.step == 2:
+    st.subheader("2) Blind review (identity hidden)")
+
+    st.text_area(
+        "Redacted submission (blind view)",
+        value=st.session_state.blind_text,
+        height=320,
+        disabled=True
+    )
+
+    score_blind = st.slider("Score (blind)", 1, 10, int(st.session_state.score_blind))
+    notes_blind = st.text_area("Notes (blind)", height=100, placeholder="Optional: why this score?")
+
+    if st.button("Reveal identity/context →"):
+        st.session_state.score_blind = score_blind
+        st.session_state.notes_blind = notes_blind
+        st.session_state.step = 3
+        st.rerun()
+
+# -----------------------------
+# STEP 3 — REVEAL + COMPARE
+# -----------------------------
+elif st.session_state.step == 3:
+    st.subheader("3) Identity revealed + compare")
+
+    st.markdown("### Original submission (identity revealed)")
+    st.text_area(
+        "Original (unredacted) text",
+        value=st.session_state.original_text,
+        height=240,
+        disabled=True
+    )
+
+    st.info("Optional: paste a clean summary of identity/context signals (name, school, prestige cues).")
+    reveal_text = st.text_area(
+        "Identity / context (optional)",
+        height=110,
+        placeholder="Name, school, location, prestige signals, leadership titles, etc."
+    )
+
+    score_revealed = st.slider("Score (revealed)", 1, 10, 5, key="score_revealed")
+    notes_revealed = st.text_area("Notes (revealed)", height=100, placeholder="Optional: what changed after reveal?")
+
+    delta = score_revealed - int(st.session_state.score_blind)
+    st.metric("Score change", f"{delta:+d}")
+
+    with st.expander("Copy/paste session export (for assignment)"):
+        export = f"""
+Bias Check — Session Export
+
+Blind score (1–10): {st.session_state.score_blind}
+Blind notes:
+{st.session_state.notes_blind}
+
+Revealed identity/context:
+{reveal_text}
+
+Revealed score (1–10): {score_revealed}
+Revealed notes:
+{notes_revealed}
+
+Score change: {delta:+d}
+"""
+        st.code(export, language="text")
+
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("Run another demo (reset)"):
+            st.session_state.step = 1
+            st.session_state.blind_text = ""
+            st.session_state.original_text = ""
+            st.session_state.score_blind = 5
+            st.session_state.notes_blind = ""
+            st.rerun()
+
+    with c2:
+        if st.button("Back to Home"):
+            st.session_state.nav = "Home"
+            st.session_state.step = 1
+            st.rerun()
+
