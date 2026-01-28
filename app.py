@@ -94,25 +94,25 @@ if page == "Home":
     with c1:
         st.markdown("### Problem")
         st.write(
-            "Early signals like name, school, and prestige brands can influence decisions "
+            "Early indicators like name, school, and prestige brands can unconsciously influence decisions "
             "before evaluators fully engage with the content."
         )
     with c2:
         st.markdown("### What we do")
         st.write(
-            "We generate a **blind (redacted) version** of a submission, collect a score, then reveal "
-            "identity/context and collect a second score."
+            "We generate a **blind (redacted) version** of any given submission, collect a score, then reveal "
+            "identity/context and then collect a second score."
         )
     with c3:
         st.markdown("### Why it matters")
-        st.write("Bias becomes observable. Teams can discuss decisions using evidence instead of assumptions.")
+        st.write("Bias becomes observable. Teams can discuss decisions using proper evidence instead of assumptions.")
 
     st.markdown("---")
     st.markdown("## How it works")
     st.markdown(
-        "- Paste a submission (resume, pitch, or application response)\n"
-        "- Add a redaction list (identity/signaling info to hide)\n"
-        "- Score the blind version\n"
+        "- The admin will paste a submission (this can be a resume, pitch, or application response)\n"
+        "- Admin will add a redaction list (identity/signaling info to hide)\n"
+        "- Evaluator scores the blind version\n"
         "- Reveal identity/context and score again\n"
         "- Compare the score change\n"
     )
@@ -126,7 +126,7 @@ if page == "Home":
 
     st.markdown("## FAQ")
     with st.expander("Is this replacing hiring or selection?"):
-        st.write("No. Evalia.io is a lightweight layer that makes sequencing effects visible.")
+        st.write("No. Evalia.io is a lightweight layer that makes sequencing effects visible!")
     with st.expander("Why manual redaction?"):
         st.write("This MVP prioritizes speed and reliability. Automation can come later.")
     with st.expander("What should we redact?"):
