@@ -1,12 +1,11 @@
 import re
 import streamlit as st
 
-# -----------------------------
 # Page setup
 # -----------------------------
 st.set_page_config(page_title="Evalia.io", page_icon="🕵️‍♀️", layout="wide")
 
-# -----------------------------
+
 # Session state defaults
 # -----------------------------
 if "page" not in st.session_state:
@@ -26,7 +25,7 @@ if "score_revealed" not in st.session_state: #newly added
 if "notes_revealed" not in st.session_state:
     st.session_state.notes_revealed = "" #stop
 
-# -----------------------------
+
 # Redaction patterns + function
 # -----------------------------
 EMAIL_RE = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.IGNORECASE)
@@ -46,7 +45,7 @@ def redact_text(text: str, tokens: list[str]) -> str:
 
     return redacted
 
-# -----------------------------
+
 # Sidebar navigation (radio controls st.session_state.page via callback)
 # -----------------------------
 def go_page():
@@ -77,7 +76,7 @@ with st.sidebar:
 # Keep page in sync if user clicks sidebar
 page = st.session_state.page
 
-# =============================
+
 # HOME PAGE
 # =============================
 if page == "Home":
@@ -140,13 +139,11 @@ if page == "Home":
 
     st.stop()
 
-# =============================
 # DEMO PAGE (3-step flow)
 # =============================
 st.title("Demo: Blind-first evaluation")
 st.caption("Paste → Redact → Score blind → Reveal → Re-score → Compare")
 
-# -----------------------------
 # STEP 1 — INPUT
 # -----------------------------
 if st.session_state.step == 1:
@@ -176,7 +173,6 @@ if st.session_state.step == 1:
         else:
             st.error("Please paste submission text first.")
 
-# -----------------------------
 # STEP 2 — BLIND REVIEW
 # -----------------------------
 elif st.session_state.step == 2:
@@ -198,7 +194,6 @@ elif st.session_state.step == 2:
         st.session_state.step = 3
         st.rerun()
 
-# -----------------------------
 # STEP 3 — REVEAL + COMPARE
 # -----------------------------
 elif st.session_state.step == 3:
@@ -249,7 +244,6 @@ elif st.session_state.step == 3:
             st.session_state.step = 1
             st.rerun()
 
-# -----------------------------
 # STEP 4 — SUMMARY + COMPARE #added
 # -----------------------------
 elif st.session_state.step == 4:
