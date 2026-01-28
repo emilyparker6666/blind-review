@@ -21,6 +21,10 @@ if "score_blind" not in st.session_state:
     st.session_state.score_blind = 5
 if "notes_blind" not in st.session_state:
     st.session_state.notes_blind = ""
+if "score_revealed" not in st.session_state: #newly added
+    st.session_state.score_revealed = 5
+if "notes_revealed" not in st.session_state:
+    st.session_state.notes_revealed = "" #stop
 
 # -----------------------------
 # Redaction patterns + function
@@ -216,6 +220,15 @@ elif st.session_state.step == 3:
 
     score_revealed = st.slider("Score (revealed)", 1, 10, 5, key="score_revealed")
     notes_revealed = st.text_area("Notes (revealed)", height=100, placeholder="Optional: what changed after reveal?")
+    if st.button("See summary →", type="primary"): #added
+        st.session_state.score_revealed = score_revealed
+        st.session_state.notes_revealed = notes_revealed
+        st.session_state.step = 4
+        st.rerun() #stop
+
+ 
+
+
 
     delta = score_revealed - int(st.session_state.score_blind)
     st.metric("Score change", f"{delta:+d}")
@@ -234,3 +247,62 @@ elif st.session_state.step == 3:
             st.session_state.page = "Home"  # safe
             st.session_state.step = 1
             st.rerun()
+
+# -----------------------------
+# STEP 4 — SUMMARY + COMPARE #added
+# -----------------------------
+elif st.session_state.step == 4:
+    st.subheader("4) Summary + compare")
+
+    blind = int(st.session_state.score_blind)
+    revealed = int(st.session_state.score_revealed)
+    delta = revealed - blind
+
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.metric("Blind score", blind)
+    with c2:
+        st.metric("Revealed score", revealed)
+    with c3:
+        st.metric("Score change", f"{delta:+d}")
+
+    st.markdown("---")
+    st.markdown("### Blind notes")
+    st.write(st.session_state.notes_blind or "—")
+
+    st.markdown("### Revealed notes")
+    st.write(st.session_state.notes_revealed or "—")
+
+    with st.expander("Copy/paste summary"):
+        export = f"""
+Bias Check — Summary
+
+Blind score: {blind}
+Blind notes:
+{st.session_state.notes_blind}
+
+Revealed score: {revealed}
+Revealed notes:
+{st.session_state.notes_revealed}
+
+Score change: {delta:+d}
+"""
+        st.code(export, language="text")
+
+    st.markdown("---")
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("Back to revealed scoring"):
+            st.session_state.step = 3
+            st.rerun()
+    with c2:
+        if st.button("Start over"):
+            st.session_state.step = 1
+            st.session_state.blind_text = ""
+            st.session_state.original_text = ""
+            st.session_state.score_blind = 5
+            st.session_state.notes_blind = ""
+            st.session_state.score_revealed = 5
+            st.session_state.notes_revealed = ""
+            st.rerun()
+
