@@ -4,7 +4,7 @@ import streamlit as st
 # -----------------------------
 # Page setup
 # -----------------------------
-st.set_page_config(page_title="Evalia", page_icon="🕵️‍♀️", layout="wide")
+st.set_page_config(page_title="Evalia.io", page_icon="🕵️‍♀️", layout="wide")
 
 # -----------------------------
 # Session state defaults
@@ -53,7 +53,7 @@ def go_page():
     st.session_state.page = st.session_state.nav_choice
 
 with st.sidebar:
-    st.markdown("## Evalia")
+    st.markdown("## Evalia.io")
     st.caption("Blind-first evaluation MVP")
 
     # IMPORTANT: radio has its OWN key, and writes into page via on_change
@@ -81,11 +81,11 @@ page = st.session_state.page
 # HOME PAGE
 # =============================
 if page == "Home":
-    st.title("⭐ Evalia")
+    st.title("⭐ Evalia.io")
     st.subheader("Blind-first evaluation for more intentional decision-making.")
 
     st.write(
-        "Evalia helps teams evaluate written submissions (resumes, pitches, applications) "
+        "Evalia.io helps teams evaluate written submissions (resumes, pitches, applications) "
         "based on **substance first**, then intentionally reintroduces identity/context to see "
         "whether it changes judgment."
     )
@@ -126,7 +126,7 @@ if page == "Home":
 
     st.markdown("## FAQ")
     with st.expander("Is this replacing hiring or selection?"):
-        st.write("No. Evalia is a lightweight layer that makes sequencing effects visible.")
+        st.write("No. Evalia.io is a lightweight layer that makes sequencing effects visible.")
     with st.expander("Why manual redaction?"):
         st.write("This MVP prioritizes speed and reliability. Automation can come later.")
     with st.expander("What should we redact?"):
@@ -276,7 +276,7 @@ elif st.session_state.step == 4:
 
     with st.expander("Copy/paste summary"):
         export = f"""
-Evalia — Summary
+Evalia.io — Summary
 
 Blind score: {blind}
 Blind notes:
