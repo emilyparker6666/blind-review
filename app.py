@@ -86,4 +86,4 @@ if page == "Home":
             "before evaluators fully engage with the content."
         )
     with c2:
-        st.markdow
+        st.markdown
