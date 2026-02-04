@@ -1,9 +1,55 @@
 import re
 import streamlit as st
+from supabase import create_client
 
-# Page setup
-# -----------------------------
 st.set_page_config(page_title="Evalia.io", page_icon="🕵️‍♀️", layout="wide")
+# ---------- SUPABASE AUTH (NEW) ----------
+@st.cache_resource
+def sb():
+    return create_client(
+        st.secrets["SUPABASE_URL"],
+        st.secrets["SUPABASE_ANON_KEY"]
+    )
+
+def login_box():
+    st.subheader("Login")
+    email = st.text_input("Email", key="login_email")
+    password = st.text_input("Password", type="password", key="login_pw")
+    if st.button("Log in"):
+        try:
+            res = sb().auth.sign_in_with_password(
+                {"email": email, "password": password}
+            )
+            st.session_state["user"] = res.user
+            st.rerun()
+        except Exception:
+            st.error("Login failed")
+
+def require_login():
+    if "user" not in st.session_state:
+        login_box()
+        st.stop()
+
+def get_profile():
+    uid = st.session_state["user"].id
+    return (
+        sb()
+        .table("profiles")
+        .select("*")
+        .eq("id", uid)
+        .single()
+        .execute()
+        .data
+    )
+
+# ---------- REQUIRE LOGIN ----------
+require_login()
+profile = get_profile()
+role = profile["role"]
+st.caption(f"Logged in as {profile['email']} · Role: {role}")
+
+# ---------- NEW ABOVE  ----------
+
 
 
 # Session state defaults
@@ -72,6 +118,16 @@ with st.sidebar:
         st.session_state.score_blind = 5
         st.session_state.notes_blind = ""
         st.rerun()
+            st.markdown("---")
+    if st.button("Log out"):
+        try:
+            sb().auth.sign_out()
+        except Exception:
+            pass
+        st.session_state.pop("user", None)
+        st.session_state.pop("profile", None)
+        st.rerun()
+
 
 # Keep page in sync if user clicks sidebar
 page = st.session_state.page
