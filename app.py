@@ -3,6 +3,10 @@ import streamlit as st
 from supabase import create_client
 
 st.set_page_config(page_title="Evalia.io", page_icon="🕵️‍♀️", layout="wide")
+if "guest_mode" not in st.session_state:
+    st.session_state.guest_mode = False
+if "page" not in st.session_state:
+    st.session_state.page = "Home"
 
 st.write("DEBUG SUPABASE_URL:", st.secrets.get("SUPABASE_URL"))
 st.write("DEBUG HOST:", st.secrets.get("SUPABASE_URL", "").split("//")[-1])
@@ -60,14 +64,17 @@ def get_profile():
     )
 
 
-# ---------- REQUIRE LOGIN ----------
-if not st.session_state.guest_mode:
+# ---------- REQUIRE LOGIN (ONLY WHEN NEEDED) ----------
+page = st.session_state.page
+
+if page != "Home" and not st.session_state.guest_mode:
     require_login()
     profile = get_profile()
     role = profile["role"]
     st.caption(f"Logged in as {profile['email']} · Role: {role}")
-else:
+elif st.session_state.guest_mode:
     st.caption("Guest mode · Role: demo")
+
 
 # ---------- NEW ABOVE  ----------
 
@@ -218,11 +225,12 @@ if page == "Home":
     with st.expander("What should we redact?"):
         st.write("Names, schools, brand names, locations, links, phone/email—anything that triggers early assumptions.")
 
-    st.write("") #always been here
-    if st.button("▶ Start demo", type="primary"):
-        st.session_state.page = "Demo"
-        st.session_state.step = 1
-        st.rerun()
+if st.button("▶ Start demo", type="primary"):
+    st.session_state.guest_mode = True
+    st.session_state.page = "Demo"
+    st.session_state.step = 1
+    st.rerun()
+
 
     # new step
     if st.button("Continue as guest"):
@@ -233,9 +241,6 @@ if page == "Home":
 
     st.stop()
 
-
-
-    st.stop()
 
 # DEMO PAGE (3-step flow)
 # =============================
