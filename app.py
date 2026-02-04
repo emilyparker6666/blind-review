@@ -128,7 +128,7 @@ with st.sidebar:
     )
 
     st.markdown("---")
-    if st.button("Reset demo"):
+    if st.button("Reset demo", key="btn_reset_demo"):
         st.session_state.step = 1
         st.session_state.blind_text = ""
         st.session_state.original_text = ""
@@ -137,18 +137,7 @@ with st.sidebar:
         st.rerun()
 
     st.markdown("---")
-    if st.button("Log out"):
-        try:
-            sb().auth.sign_out()
-        except Exception:
-            pass
-        st.session_state.pop("user", None)
-        st.session_state.pop("profile", None)
-        st.rerun()
-
-    st.markdown("---")
-    # added block
-    if st.button("Clear cache (debug)"):
+    if st.button("Clear cache (debug)", key="btn_clear_cache"):
         st.cache_resource.clear()
         st.session_state.pop("sb_session", None)
         st.session_state.pop("user", None)
@@ -156,8 +145,7 @@ with st.sidebar:
         st.rerun()
 
     st.markdown("---")
-
-    if st.button("Log out"):
+    if st.button("Log out", key="btn_logout"):
         try:
             sb().auth.sign_out()
         except Exception:
@@ -165,7 +153,9 @@ with st.sidebar:
         st.session_state.pop("sb_session", None)
         st.session_state.pop("user", None)
         st.session_state.pop("profile", None)
+        st.cache_resource.clear()
         st.rerun()
+
 
 # Keep page in sync if user clicks sidebar
 page = st.session_state.page
