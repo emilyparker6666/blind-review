@@ -110,7 +110,7 @@ with st.sidebar:
         on_change=go_page
     )
 
-    st.markdown("---")
+        st.markdown("---")
     if st.button("Reset demo"):
         st.session_state.step = 1
         st.session_state.blind_text = ""
@@ -118,7 +118,8 @@ with st.sidebar:
         st.session_state.score_blind = 5
         st.session_state.notes_blind = ""
         st.rerun()
-            st.markdown("---")
+
+    st.markdown("---")
     if st.button("Log out"):
         try:
             sb().auth.sign_out()
@@ -127,6 +128,7 @@ with st.sidebar:
         st.session_state.pop("user", None)
         st.session_state.pop("profile", None)
         st.rerun()
+
 
 
 # Keep page in sync if user clicks sidebar
