@@ -4,6 +4,9 @@ from supabase import create_client
 
 st.set_page_config(page_title="Evalia.io", page_icon="🕵️‍♀️", layout="wide")
 
+st.write("DEBUG SUPABASE_URL:", st.secrets.get("SUPABASE_URL"))
+st.write("DEBUG HOST:", st.secrets.get("SUPABASE_URL", "").split("//")[-1])
+
 # ---------- SUPABASE AUTH (FIXED) ----------
 @st.cache_resource
 def sb_base():
