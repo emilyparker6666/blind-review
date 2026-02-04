@@ -138,6 +138,7 @@ with st.sidebar:
     )
 
     st.markdown("---")
+
     if st.button("Reset demo", key="btn_reset_demo"):
         st.session_state.step = 1
         st.session_state.blind_text = ""
@@ -147,6 +148,7 @@ with st.sidebar:
         st.rerun()
 
     st.markdown("---")
+
     if st.button("Clear cache (debug)", key="btn_clear_cache"):
         st.cache_resource.clear()
         st.session_state.pop("sb_session", None)
@@ -155,23 +157,36 @@ with st.sidebar:
         st.rerun()
 
     st.markdown("---")
+
     if st.button("Log out", key="btn_logout"):
         try:
             sb().auth.sign_out()
         except Exception:
             pass
+        st.session_state.guest_mode = False   # ✅ add this so logout exits guest too
         st.session_state.pop("sb_session", None)
         st.session_state.pop("user", None)
         st.session_state.pop("profile", None)
         st.cache_resource.clear()
+        st.session_state.page = "Home"        # ✅ send back home
         st.rerun()
 
+    st.markdown("---")
+
+    if st.button("Exit guest mode", key="btn_exit_guest"):
+        st.session_state.guest_mode = False
+        st.session_state.pop("sb_session", None)
+        st.session_state.pop("user", None)
+        st.session_state.pop("profile", None)
+        st.session_state.page = "Home"
+        st.rerun()
 
 # Keep page in sync if user clicks sidebar
 page = st.session_state.page
 
 
-# HOME PAGE
+
+# New HOME PAGE
 # =============================
 if page == "Home":
     st.title("⭐ Evalia.io")
@@ -183,67 +198,33 @@ if page == "Home":
         "whether it changes judgment."
     )
 
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.markdown("### Problem")
-        st.write(
-            "Early indicators like name, school, and prestige brands can unconsciously influence decisions "
-            "before evaluators fully engage with the content."
-        )
-    with c2:
-        st.markdown("### What we do")
-        st.write(
-            "We generate a **blind (redacted) version** of any given submission, collect a score, then reveal "
-            "identity/context and then collect a second score."
-        )
-    with c3:
-        st.markdown("### Why it matters")
-        st.write("Bias becomes observable. Teams can discuss decisions using proper evidence instead of assumptions.")
-
     st.markdown("---")
-    st.markdown("## How it works")
-    st.markdown(
-        "- The admin will paste a submission (this can be a resume, pitch, or application response)\n"
-        "- Admin will add a redaction list (identity/signaling info to hide)\n"
-        "- Evaluator scores the blind version\n"
-        "- Reveal identity/context and score again\n"
-        "- Compare the score change\n"
-    )
 
-    st.markdown("## Who it’s for")
-    st.markdown(
-        "- Student orgs reviewing applicants\n"
-        "- Startup teams reviewing pitches\n"
-        "- Small teams hiring interns\n"
-    )
+    col1, col2 = st.columns(2)
 
-    st.markdown("## FAQ")
-    with st.expander("Is this replacing hiring or selection?"):
-        st.write("No. Evalia.io is a lightweight layer that makes sequencing effects visible!")
-    with st.expander("Why manual redaction?"):
-        st.write("This MVP prioritizes speed and reliability. Automation can come later.")
-    with st.expander("What should we redact?"):
-        st.write("Names, schools, brand names, locations, links, phone/email—anything that triggers early assumptions.")
+    with col1:
+        if st.button("▶ Start demo", type="primary", key="btn_start_demo"):
+            st.session_state.guest_mode = True
+            st.session_state.page = "Demo"
+            st.session_state.step = 1
+            st.rerun()
 
-if st.button("▶ Start demo", type="primary"):
-    st.session_state.guest_mode = True
-    st.session_state.page = "Demo"
-    st.session_state.step = 1
-    st.rerun()
-
-
-    # new step
-    if st.button("Continue as guest"):
-        st.session_state.guest_mode = True
-        st.session_state.page = "Demo"
-        st.session_state.step = 1
-        st.rerun()
+    with col2:
+        if st.button("Log in (admin)", key="btn_go_login"):
+            st.session_state.guest_mode = False
+            st.session_state.page = "Demo"   # go to demo but require login
+            st.session_state.step = 1
+            st.rerun()
 
     st.stop()
 
 
+
 # DEMO PAGE (3-step flow)
 # =============================
+if page != "Demo":
+    st.stop()
+
 st.title("Demo: Blind-first evaluation")
 st.caption("Paste → Redact → Score blind → Reveal → Re-score → Compare")
 
