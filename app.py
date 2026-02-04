@@ -8,7 +8,7 @@ st.write("DEBUG SUPABASE_URL:", st.secrets.get("SUPABASE_URL"))
 st.write("DEBUG HOST:", st.secrets.get("SUPABASE_URL", "").split("//")[-1])
 
 # ---------- SUPABASE AUTH (FIXED) ----------
-@st.cache_resource
+@st.cache_resource(ttl=300)
 def sb_base():
     return create_client(
         st.secrets["SUPABASE_URL"],
@@ -146,7 +146,26 @@ with st.sidebar:
         st.session_state.pop("profile", None)
         st.rerun()
 
+    st.markdown("---")
+    # added block
+    if st.button("Clear cache (debug)"):
+        st.cache_resource.clear()
+        st.session_state.pop("sb_session", None)
+        st.session_state.pop("user", None)
+        st.session_state.pop("profile", None)
+        st.rerun()
 
+    st.markdown("---")
+
+    if st.button("Log out"):
+        try:
+            sb().auth.sign_out()
+        except Exception:
+            pass
+        st.session_state.pop("sb_session", None)
+        st.session_state.pop("user", None)
+        st.session_state.pop("profile", None)
+        st.rerun()
 
 # Keep page in sync if user clicks sidebar
 page = st.session_state.page
