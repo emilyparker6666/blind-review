@@ -3,30 +3,44 @@ import streamlit as st
 from supabase import create_client
 
 st.set_page_config(page_title="Evalia.io", page_icon="🕵️‍♀️", layout="wide")
-# ---------- SUPABASE AUTH (NEW) ----------
+
+# ---------- SUPABASE AUTH (FIXED) ----------
 @st.cache_resource
-def sb():
+def sb_base():
     return create_client(
         st.secrets["SUPABASE_URL"],
         st.secrets["SUPABASE_ANON_KEY"]
     )
 
+def sb():
+    client = sb_base()
+    if st.session_state.get("sb_session"):
+        s = st.session_state["sb_session"]
+        client.auth.set_session(s["access_token"], s["refresh_token"])
+    return client
+
 def login_box():
     st.subheader("Login")
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_pw")
+
     if st.button("Log in"):
         try:
-            res = sb().auth.sign_in_with_password(
+            res = sb_base().auth.sign_in_with_password(
                 {"email": email, "password": password}
             )
+
+            st.session_state["sb_session"] = {
+                "access_token": res.session.access_token,
+                "refresh_token": res.session.refresh_token,
+            }
             st.session_state["user"] = res.user
             st.rerun()
-        except Exception:
-            st.error("Login failed")
+        except Exception as e:
+            st.error(f"Login failed: {e}")
 
 def require_login():
-    if "user" not in st.session_state:
+    if not st.session_state.get("sb_session"):
         login_box()
         st.stop()
 
@@ -41,6 +55,7 @@ def get_profile():
         .execute()
         .data
     )
+
 
 # ---------- REQUIRE LOGIN ----------
 require_login()
@@ -117,17 +132,6 @@ with st.sidebar:
         st.session_state.score_blind = 5
         st.session_state.notes_blind = ""
         st.rerun()
-
-    st.markdown("---")
-    if st.button("Log out"):
-        try:
-            sb().auth.sign_out()
-        except Exception:
-            pass
-        st.session_state.pop("user", None)
-        st.session_state.pop("profile", None)
-        st.rerun()
-
 
     st.markdown("---")
     if st.button("Log out"):
