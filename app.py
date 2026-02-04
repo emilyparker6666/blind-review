@@ -61,10 +61,13 @@ def get_profile():
 
 
 # ---------- REQUIRE LOGIN ----------
-require_login()
-profile = get_profile()
-role = profile["role"]
-st.caption(f"Logged in as {profile['email']} · Role: {role}")
+if not st.session_state.guest_mode:
+    require_login()
+    profile = get_profile()
+    role = profile["role"]
+    st.caption(f"Logged in as {profile['email']} · Role: {role}")
+else:
+    st.caption("Guest mode · Role: demo")
 
 # ---------- NEW ABOVE  ----------
 
@@ -215,11 +218,22 @@ if page == "Home":
     with st.expander("What should we redact?"):
         st.write("Names, schools, brand names, locations, links, phone/email—anything that triggers early assumptions.")
 
-    st.write("")
+    st.write("") #always been here
     if st.button("▶ Start demo", type="primary"):
-        st.session_state.page = "Demo"      # <-- safe (NOT a widget key)
+        st.session_state.page = "Demo"
         st.session_state.step = 1
         st.rerun()
+
+    # new step
+    if st.button("Continue as guest"):
+        st.session_state.guest_mode = True
+        st.session_state.page = "Demo"
+        st.session_state.step = 1
+        st.rerun()
+
+    st.stop()
+
+
 
     st.stop()
 
